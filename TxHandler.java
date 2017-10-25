@@ -26,13 +26,21 @@ public class TxHandler {
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
     	boolean isValid = true;
-    	
+    	    	
+    	ArrayList<Transaction.Input>  txInputs  = tx.getInputs();
     	ArrayList<Transaction.Output> txOutputs = tx.getOutputs();
-    	for (Transaction.Output out : txOutputs)
+    	
+    	for (Transaction.Input input : txInputs)
     	{
-    		//todo: from Transaction.Output to UTXO
-    		//isValid = utxoPool.contains(utxo)
-    	}
+    		// (1)
+    		UTXO utxo = new UTXO(input.prevTxHash, input.outputIndex);    		
+    		isValid = isValid && utxoPool.contains(utxo);
+    		
+    		if (isValid)
+    		{
+    			// (2)
+    		}
+    	}        
     	
     	return isValid;
     }
