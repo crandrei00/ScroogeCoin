@@ -33,14 +33,17 @@ public class TxHandler {
     	for (Transaction.Input input : txInputs)
     	{
     		// (1)
-    		UTXO utxo = new UTXO(input.prevTxHash, input.outputIndex);    		
+    		UTXO utxo = new UTXO(input.prevTxHash, input.outputIndex);
     		isValid = isValid && utxoPool.contains(utxo);
     		
     		if (isValid)
     		{
     			// (2)
+    			byte[] message = null;
+    			Transaction.Output output = txOutputs.get(input.outputIndex);
+    			isValid = isValid && Crypto.verifySignature(output.address, message, input.signature);
     		}
-    	}        
+    	}
     	
     	return isValid;
     }
