@@ -39,6 +39,9 @@ public class TxHandler {
     		if (isValid)
     		{
     			// (2)
+    			byte[] message = null;
+    			Transaction.Output output = txOutputs.get(input.outputIndex);
+    			isValid = isValid && Crypto.verifySignature(output.address, message, input.signature);
     		}
     	}
     	
