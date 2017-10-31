@@ -30,18 +30,36 @@ public class TxHandler {
     	ArrayList<Transaction.Input>  txInputs  = tx.getInputs();
     	ArrayList<Transaction.Output> txOutputs = tx.getOutputs();
     	
-    	for (Transaction.Input input : txInputs)
+    	for (int index = 0; isValid && index < txInputs.size(); ++index)
     	{
-    		// (1)
+    		// (1) all outputs claimed by {@code tx} are in the current UTXO pool		
+    		Transaction.Input input = tx.getInput(index);
     		UTXO utxo = new UTXO(input.prevTxHash, input.outputIndex);
     		isValid = isValid && utxoPool.contains(utxo);
     		
     		if (isValid)
     		{
-    			// (2)
-    			byte[] message = null;
+    			// (2) the signatures on each input of {@code tx} are valid
+    			byte[] message = tx.getRawDataToSign(index);
     			Transaction.Output output = txOutputs.get(input.outputIndex);
     			isValid = isValid && Crypto.verifySignature(output.address, message, input.signature);
+    		}    		    		    	
+    	}
+    	
+    	// (3) no UTXO is claimed multiple times by {@code tx}
+    	// i.e. no UTXO 
+    	for (int index = 0; isValid && index < utxoPool.getAllUTXO().size()-1; ++index)
+    	{
+    		for (int index2 = index + 1; isValid && index2 < utxoPool.getAllUTXO().size(); ++index2)
+    		{
+    			UTXO first = utxoPool.getAllUTXO().get(index);
+    			UTXO second = utxoPool.getAllUTXO().get(index2);
+    			/*
+    			if (first.compareTo(second) == 1)
+    			{
+    				isValid = false;
+    			}
+    			*/
     		}
     	}
     	
