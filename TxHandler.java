@@ -96,8 +96,17 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // IMPLEMENT THIS
-    	Transaction[] transaction = null;
+    	Transaction[] transactions = new Transaction[possibleTxs.length];
+    	//ArrayList<Transaction> txArray = new ArrayList<Transaction>();
     	
-    	return transaction;
+    	for (Transaction tx : possibleTxs)
+    	{
+    		if (isValidTx(tx))
+    		{
+    			;
+    		}
+    	}
+    	
+    	return transactions;
     }
 }
