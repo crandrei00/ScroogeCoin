@@ -2,11 +2,11 @@ import java.util.ArrayList;
 
 public class MaxFeeTxHandler
 {
-	public UTXOPool	utxoPool;
+	private UTXOPool	utxoPool;
 	
-	public class Fee
+	private class Fee
 	{
-		public double value;
+		private double value;
 		
 		public Fee(double fee)
 		{
@@ -122,26 +122,24 @@ public class MaxFeeTxHandler
 	{
 		// IMPLEMENT THIS
 		ArrayList<Transaction> validTxArray = new ArrayList<Transaction>();
-		ArrayList<Fee> feeArray = new ArrayList<Fee>();
+		ArrayList<Transaction> maxFeeTxArray = new ArrayList<Transaction>();
 
 		for (Transaction tx : possibleTxs)
 		{
 			Fee fee = new MaxFeeTxHandler.Fee(0);
 			if (isValidTx(tx, fee))
 			{
+				if (fee.value > 0)
+				{
+					maxFeeTxArray.add(tx);
+				}				
+				
 				validTxArray.add(tx);
-				feeArray.add(fee);
-				updateUtxoPool(tx);
+				updateUtxoPool(tx);				
 			}
 		}
 
-		return maximizeTxFees(validTxArray, feeArray);
-	}
-	
-	private Transaction[] maximizeTxFees(ArrayList<Transaction> txs, ArrayList<Fee> fees)
-	{
-		Transaction[] transactions = new Transaction[txs.size()];
-		// ?!			
-		return txs.toArray(transactions);
+		Transaction[] transactions = new Transaction[maxFeeTxArray.size()];		
+		return maxFeeTxArray.toArray(transactions);
 	}
 }
