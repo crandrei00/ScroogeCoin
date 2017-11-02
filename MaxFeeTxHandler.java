@@ -1,16 +1,18 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 public class MaxFeeTxHandler
 {
-	public UTXOPool	utxoPool;
+	private UTXOPool	utxoPool;
 	
-	public class Fee
+	private class Fee
 	{
-		public double value;
+		private BigDecimal value;
 		
 		public Fee(double fee)
 		{
-			value = fee;
+			value = new BigDecimal(fee).setScale(20,  RoundingMode.HALF_UP);
 		}
 	}
 
@@ -101,7 +103,9 @@ public class MaxFeeTxHandler
 		}
 
 		// compute transaction fee while you're at it
-		fee.value = inputTxSum - outputTxSum;
+		BigDecimal inputSum = new BigDecimal(inputTxSum).setScale(20, RoundingMode.HALF_UP);
+		BigDecimal outputSum = new BigDecimal(outputTxSum).setScale(20, RoundingMode.HALF_UP);
+		fee.value = inputSum.subtract(outputSum);		
 		
 		// (5) the sum of {@code tx}s input values is greater than or equal to
 		// the sum of its output values, and false otherwise.
@@ -122,26 +126,27 @@ public class MaxFeeTxHandler
 	{
 		// IMPLEMENT THIS
 		ArrayList<Transaction> validTxArray = new ArrayList<Transaction>();
-		ArrayList<Fee> feeArray = new ArrayList<Fee>();
+		ArrayList<Transaction> maxFeeTxArray = new ArrayList<Transaction>();
 
 		for (Transaction tx : possibleTxs)
 		{
 			Fee fee = new MaxFeeTxHandler.Fee(0);
 			if (isValidTx(tx, fee))
 			{
+				BigDecimal refValue = new BigDecimal(0.00000000000000000001);
+				
+				//if (fee.value > 0.00000000000000000001)
+				if (fee.value.compareTo(refValue) == 1)
+				{
+					maxFeeTxArray.add(tx);
+				}				
+				
 				validTxArray.add(tx);
-				feeArray.add(fee);
-				updateUtxoPool(tx);
+				updateUtxoPool(tx);				
 			}
 		}
 
-		return maximizeTxFees(validTxArray, feeArray);
-	}
-	
-	private Transaction[] maximizeTxFees(ArrayList<Transaction> txs, ArrayList<Fee> fees)
-	{
-		Transaction[] transactions = new Transaction[txs.size()];
-		// ?!			
-		return txs.toArray(transactions);
+		Transaction[] transactions = new Transaction[maxFeeTxArray.size()];		
+		return maxFeeTxArray.toArray(transactions);
 	}
 }
